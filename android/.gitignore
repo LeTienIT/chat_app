@@ -1,0 +1,57 @@
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+key.properties
+**/*.keystore
+**/*.jks
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+lib/generated_plugin_registrant.dart
+
+# Android
+android/.gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/key.properties
+android/app/google-services.json  # <-- Bỏ qua key Firebase Android
+/.idea/
+*.iml
+
+# iOS
+ios/.generated/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+ios/Runner/GeneratedPluginRegistrant.*  # <-- Bỏ qua nếu có
+ios/Runner/GoogleService-Info.plist  # <-- Bỏ qua key Firebase iOS
+ios/Pods/
+ios/Podfile.lock
+
+# Web
+web/build/
+
+# Exceptions to above rules.
+/!/lib/generated_plugin_registrant.dart
+
+# User config (nếu có)
+.env
+*.key
+*.pem
+*.keystore
+firebase_options.dart  # <-- Nếu file này chứa secrets, ignore; иначе giữ lại

@@ -1,5 +1,6 @@
 import 'package:chat_app/features/authentication/presentation/pages/login_page.dart';
 import 'package:chat_app/features/authentication/presentation/pages/register_page.dart';
+import 'package:chat_app/features/chat/presentation/pages/groups_page.dart';
 import 'package:go_router/go_router.dart';
 
 final router = GoRouter(
@@ -13,6 +14,11 @@ final router = GoRouter(
     GoRoute(
         path: '/register',
         builder: (c,s) => RegisterPage()
+    ),
+
+    GoRoute(
+        path: '/groups',
+        builder: (c,s) => GroupPage()
     ),
   ]
 );

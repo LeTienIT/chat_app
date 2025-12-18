@@ -201,21 +201,22 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin{
             );
           }
           if(state is AuthAuthenticated){
-            showDialog(
-                context: context,
-                builder: (context){
-                  return AlertDialog(
-                    title: const Text("Xong"),
-                    content: Text("Đăng nhập thành công: ${state.user.displayName}"),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text("Đóng")
-                      )
-                    ],
-                  );
-                }
-            );
+            // showDialog(
+            //     context: context,
+            //     builder: (context){
+            //       return AlertDialog(
+            //         title: const Text("Xong"),
+            //         content: Text("Đăng nhập thành công: ${state.user.displayName}"),
+            //         actions: [
+            //           TextButton(
+            //               onPressed: () => Navigator.of(context).pop(),
+            //               child: const Text("Đóng")
+            //           )
+            //         ],
+            //       );
+            //     }
+            // );
+            context.go("/groups");
           }
         }
     );

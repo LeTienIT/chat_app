@@ -1,4 +1,4 @@
-import 'package:chat_app/features/groups//domain/entities/group.dart';
+import 'package:chat_app/features/groups/domain/entities/group.dart';
 
 class GroupModel extends Group{
   const GroupModel({required super.id, required super.name, required super.members, required super.creatorId, required super.createdAt, required super.updateAt, String? description});
@@ -11,7 +11,19 @@ class GroupModel extends Group{
       members: List<String>.from(json['members'] ?? []),
       creatorId: json['creatorId'] as String,
       createdAt: DateTime.parse(json['createdAt']),
-      updateAt: DateTime.parse(json['updateAt']),
+      updateAt: DateTime.parse(json['createdAt']),
+    );
+  }
+
+  Group toEntity() {
+    return Group(
+      id: id,
+      name: name,
+      description: description,
+      members: members,
+      creatorId: creatorId,
+      createdAt: createdAt,
+      updateAt: updateAt,
     );
   }
 

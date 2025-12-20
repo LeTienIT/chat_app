@@ -1,6 +1,7 @@
-import '../../../chat/data/models/group_model.dart';
+import '../../../groups/data/models/group_model.dart';
 
 abstract class GroupDatasource{
+
   Future<GroupModel> createGroup({
     required String name,
     String? description,

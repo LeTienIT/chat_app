@@ -1,5 +1,5 @@
 import 'package:chat_app/core/error/failures.dart';
-import 'package:chat_app/features/chat/domain/entities/group.dart';
+import 'package:chat_app/features/groups/domain/entities/group.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class GroupRepository{

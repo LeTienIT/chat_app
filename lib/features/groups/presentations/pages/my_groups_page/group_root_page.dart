@@ -1,3 +1,4 @@
+import 'package:chat_app/features/groups/presentations/pages/my_groups_page/item/my_group.dart';
 import 'package:flutter/material.dart';
 
 class GroupRootPage extends StatefulWidget{
@@ -18,7 +19,7 @@ class _GroupRootPage extends State<GroupRootPage>{
       body: IndexedStack(
         index: _currentIndex,
         children: [
-
+          MyGroupPage()
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -29,8 +30,12 @@ class _GroupRootPage extends State<GroupRootPage>{
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.groups)),
-          BottomNavigationBarItem(icon: Icon(Icons.explore))
+          BottomNavigationBarItem(
+              icon: Icon(Icons.groups), label: "Nhóm"
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.explore), label: "Tham gia"
+          )
         ]
       ),
     );

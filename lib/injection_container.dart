@@ -1,8 +1,12 @@
-import 'package:chat_app/features/chat/domain/usecases/create_group.dart';
-import 'package:chat_app/features/chat/domain/usecases/get_user_groups.dart';
-import 'package:chat_app/features/chat/domain/usecases/join_group.dart';
-import 'package:chat_app/features/chat/domain/usecases/search_group.dart';
-import 'package:chat_app/features/chat/presentation/bloc/group_bloc.dart';
+
+import 'package:chat_app/features/groups/data/datasources/group_datasource.dart';
+import 'package:chat_app/features/groups/data/datasources/group_datasource_impl.dart';
+import 'package:chat_app/features/groups/data/repositories/group_repository_impl.dart';
+import 'package:chat_app/features/groups/domain/repositories/group_repository.dart';
+import 'package:chat_app/features/groups/domain/usecase/join_group.dart';
+import 'package:chat_app/features/groups/domain/usecase/load_group.dart';
+import 'package:chat_app/features/groups/domain/usecase/search_group.dart';
+import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
@@ -16,10 +20,7 @@ import 'features/authentication/domain/usecases/register.dart';
 import 'features/authentication/domain/usecases/logout.dart';
 import 'features/authentication/domain/usecases/get_current_user.dart';
 import 'features/authentication/presentation/bloc/auth_bloc.dart';
-import 'features/chat/data/datasources/chat_remote_datasource.dart';
-import 'features/chat/data/datasources/chat_remote_datasource_impl.dart';
-import 'features/chat/data/repositories/chat_repository_impl.dart';
-import 'features/chat/domain/repositories/chat_repository.dart';
+import 'features/groups/domain/usecase/create_group.dart';
 
 final sl = GetIt.instance;
 
@@ -57,19 +58,14 @@ Future<void> init() async {
   // Bloc (sẽ dùng sau)
   sl.registerFactory(() => AuthBloc(login: sl(), register: sl(), logout: sl(), getCurrentUser: sl()));
 
-  sl.registerLazySingleton<ChatRemoteDataSource>(() => ChatRemoteDataSourceImpl( firestore: sl(),));
+  sl.registerLazySingleton<GroupDatasource>(() => GroupRemoteDataSourceImpl(sl(),));
 
-  sl.registerLazySingleton<ChatRepository>(()=>ChatRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<GroupRepository>(()=>GroupRepositoryImpl(groupDatasource: sl()));
 
-  sl.registerLazySingleton(() => GetUserGroup(sl()));
-  sl.registerLazySingleton(() => CreateGroup(sl()));
-  sl.registerLazySingleton(() => JoinGroup(sl()));
-  sl.registerLazySingleton(() => SearchGroups(sl()));
-  sl.registerFactory(() => GroupBloc(
-      getUserGroup: sl(),
-      createGroup: sl(),
-      joinGroup: sl(),
-      searchGroups: sl()
-    ),
-  );
+  sl.registerLazySingleton(() => LoadMyGroup(groupRepository: sl()));
+  sl.registerLazySingleton(() => CreateGroup(groupRepository: sl()));
+  sl.registerLazySingleton(() => JoinGroup(repository: sl()));
+  sl.registerLazySingleton(() => SearchGroup(groupRepository: sl()));
+
+  sl.registerFactory(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl()),);
 }

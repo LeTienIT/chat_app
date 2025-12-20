@@ -1,6 +1,6 @@
 import 'package:chat_app/core/error/failures.dart';
 import 'package:chat_app/core/usecases/usecase.dart';
-import 'package:chat_app/features/chat/domain/entities/group.dart';
+import 'package:chat_app/features/groups/domain/entities/group.dart';
 import 'package:chat_app/features/groups/domain/repositories/group_repository.dart';
 import 'package:dartz/dartz.dart';
 

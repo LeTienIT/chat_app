@@ -16,7 +16,7 @@ void main() async {
 
   runApp(
       BlocProvider(
-        create: (_) => sl<AuthBloc>(),
+        create: (_) => sl<AuthBloc>()..add(AppLoaded()),
         child: const MyApp(),
       )
   );

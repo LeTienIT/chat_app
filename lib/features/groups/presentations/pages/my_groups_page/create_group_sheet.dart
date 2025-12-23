@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../bloc/my_group_bloc/my_group_bloc.dart';
-import '../../../bloc/my_group_bloc/my_group_event.dart';
+import '../../bloc/my_group_bloc/my_group_bloc.dart';
+import '../../bloc/my_group_bloc/my_group_event.dart';
 
 class CreateGroupBottomSheet extends StatefulWidget {
   const CreateGroupBottomSheet({super.key});

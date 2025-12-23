@@ -57,6 +57,9 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
         await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       }
+      else{
+        return Left(ServerFailure(''));
+      }
     } on ServerException {
       // Fallback local nếu remote fail (offline)
     }

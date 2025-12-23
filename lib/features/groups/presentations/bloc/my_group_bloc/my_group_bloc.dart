@@ -25,10 +25,7 @@ class MyGroupBloc extends Bloc<MyGroupEvent, MyGroupState>{
 
   }
 
-  Future<void> _onCreateGroup(
-      CreateGroupEvent event,
-      Emitter<MyGroupState> emit,
-      ) async {
+  Future<void> _onCreateGroup(CreateGroupEvent event, Emitter<MyGroupState> emit,) async {
     final currentState = state;
 
     if (currentState is MyGroupLoadedState) {
@@ -50,7 +47,7 @@ class MyGroupBloc extends Bloc<MyGroupEvent, MyGroupState>{
     if (rs.isLeft()) {
       final failure = rs.fold((l) => l, (_) => null);
       emit(MyGroupErrorState(failure!.message));
-      return;
+      Future.delayed(Duration(seconds: 1));
     }
 
     final reload = await loadMyGroup(

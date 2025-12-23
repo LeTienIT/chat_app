@@ -1,7 +1,8 @@
 import 'package:chat_app/features/authentication/presentation/pages/login_page.dart';
 import 'package:chat_app/features/authentication/presentation/pages/register_page.dart';
+import 'package:chat_app/features/groups/presentations/bloc/discover_group_bloc/discover_group_bloc.dart';
 import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_event.dart';
-import 'package:chat_app/features/groups/presentations/pages/my_groups_page/group_root_page.dart';
+import 'package:chat_app/features/groups/presentations/pages/group_root_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -33,6 +34,12 @@ final router = GoRouter(
                 createGroup: sl(),
               )..add(LoadMyGroupEvent(userId)),
             ),
+            BlocProvider(
+                create: (_) => DiscoverGroupBloc(
+                    joinGroup: sl(),
+                    searchGroup: sl()
+                )
+            )
           ],
           child: const GroupRootPage(),
         );

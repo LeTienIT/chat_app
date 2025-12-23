@@ -1,4 +1,4 @@
-import 'package:chat_app/core/error/exceptions.dart';
+import '../../../../core/error/exceptions.dart';
 import 'package:chat_app/core/error/failures.dart';
 import 'package:chat_app/features/groups/domain/entities/group.dart';
 import 'package:chat_app/features/groups/data/datasources/group_datasource.dart';
@@ -16,12 +16,10 @@ class GroupRepositoryImpl implements GroupRepository{
       final model = await groupDatasource.createGroup(name: name, members: members, creatorId: creatorID);
 
       return Right(model.toEntity());
-    }
-    on ServerException catch (e){
+    } on ServerException catch (e) {
       return Left(ServerFailure(e.message ?? 'Failed to create group'));
-    }
-    catch(e){
-      return Left(ServerFailure('Unexpected error: $e'));
+    } catch (e) {
+      return Left(ServerFailure('An unexpected error occurred while creating group'));  // Fix leak
     }
   }
 

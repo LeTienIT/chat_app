@@ -16,8 +16,19 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
     required String creatorId,
   }) async {
     try {
+      final checkQuery = await firestore
+          .collection('groups')
+          .where('name', isEqualTo: name)
+          .limit(1)
+          .get();
+
+      if (checkQuery.docs.isNotEmpty) {
+        throw ServerException(message: 'Group name "$name" already exists');
+      }
+
       final data = {
         'name': name,
+        'nameLower': name.toLowerCase(),
         'description': description,
         'members': members,
         'creatorId': creatorId,
@@ -45,6 +56,9 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
       }
       throw ServerException(message: message);
     } catch (e) {
+      if (e is ServerException) {
+        rethrow;
+      }
       throw ServerException(message: 'Unexpected error: $e');
     }
   }
@@ -109,10 +123,12 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
   @override
   Future<List<GroupModel>> searchGroups(String query) async {
     try {
+      final queryLower = query.toLowerCase();
+
       final snap = await firestore
           .collection('groups')
-          .where('name', isGreaterThanOrEqualTo: query)
-          .where('name', isLessThanOrEqualTo: '$query\uf8ff')  // Unicode trick cho prefix search
+          .where('nameLower', isGreaterThanOrEqualTo: queryLower)
+          .where('nameLower', isLessThanOrEqualTo: '$queryLower\uf8ff')
           .get();
 
       return snap.docs

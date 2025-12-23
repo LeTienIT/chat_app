@@ -6,6 +6,7 @@ import 'package:chat_app/features/groups/domain/repositories/group_repository.da
 import 'package:chat_app/features/groups/domain/usecase/join_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/load_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/search_group.dart';
+import 'package:chat_app/features/groups/presentations/bloc/discover_group_bloc/discover_group_bloc.dart';
 import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -67,5 +68,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => JoinGroup(repository: sl()));
   sl.registerLazySingleton(() => SearchGroup(groupRepository: sl()));
 
-  sl.registerFactory(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl()),);
+  sl.registerLazySingleton(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl()),);
+  sl.registerLazySingleton(() => DiscoverGroupBloc(joinGroup: sl(), searchGroup: sl()));
 }

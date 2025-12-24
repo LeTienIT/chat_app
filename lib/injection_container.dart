@@ -1,4 +1,12 @@
 
+import 'package:chat_app/features/chat/data/datasource/message_datasource.dart';
+import 'package:chat_app/features/chat/data/datasource/message_datasource_impl.dart';
+import 'package:chat_app/features/chat/data/repositories/message_repository_impl.dart';
+import 'package:chat_app/features/chat/domain/repositories/message_repository.dart';
+import 'package:chat_app/features/chat/domain/usecase/load_more_message.dart';
+import 'package:chat_app/features/chat/domain/usecase/send_message.dart';
+import 'package:chat_app/features/chat/domain/usecase/stream_message.dart';
+import 'package:chat_app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:chat_app/features/groups/data/datasources/group_datasource.dart';
 import 'package:chat_app/features/groups/data/datasources/group_datasource_impl.dart';
 import 'package:chat_app/features/groups/data/repositories/group_repository_impl.dart';
@@ -70,4 +78,13 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl()),);
   sl.registerLazySingleton(() => DiscoverGroupBloc(joinGroup: sl(), searchGroup: sl()));
+
+  sl.registerLazySingleton<MessageDataSource>(() => MessageDataSourceImpl(sl()));
+  sl.registerLazySingleton<MessageRepository>(() => MessageRepositoryImpl(sl()));
+
+  sl.registerLazySingleton(() => SendMessage(sl()));
+  sl.registerLazySingleton(() => LoadMoreMessages(sl()));
+  sl.registerLazySingleton(() => StreamMessage(sl()));
+
+  sl.registerFactory(() => ChatBloc(streamMessage: sl(), loadMoreMessages: sl(), sendMessage: sl()));
 }

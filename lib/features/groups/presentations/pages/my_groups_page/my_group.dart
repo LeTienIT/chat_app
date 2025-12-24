@@ -2,6 +2,7 @@ import 'package:chat_app/features/groups/domain/entities/group.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../bloc/my_group_bloc/my_group_bloc.dart';
 import '../../bloc/my_group_bloc/my_group_state.dart';
@@ -121,7 +122,7 @@ class _MyGroupPage extends State<MyGroupPage>{
                               trailing: isCreator ? Icon(Icons.star, color: Colors.amber,) : null,
 
                               onTap: (){
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vào tin nhắn")));
+                                context.push('/chat/${group.id}/${group.name}');
                               },
                             ),
                           );

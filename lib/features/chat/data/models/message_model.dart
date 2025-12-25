@@ -8,7 +8,8 @@ class MessageModel extends Message {
     required super.senderId,
     required super.content,
     required super.type,
-    required super.createdAt
+    required super.createdAt,
+    super.senderName
   });
 
   factory MessageModel.fromJson(
@@ -25,6 +26,7 @@ class MessageModel extends Message {
         orElse: () => MessageType.text,
       ),
       createdAt: (json['createdAt'] as Timestamp).toDate(),
+      senderName: json['senderName'] ?? "NoName"
     );
   }
 
@@ -35,9 +37,11 @@ class MessageModel extends Message {
       'content': content,
       'type': type.name,
       'createdAt': Timestamp.fromDate(createdAt),
+      'senderName' : senderName,
     };
   }
 
+  @override
   MessageModel copyWith({
     String? id,
     String? groupId,
@@ -45,6 +49,7 @@ class MessageModel extends Message {
     String? content,
     MessageType? type,
     DateTime? createdAt,
+    String? senderName,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -53,6 +58,7 @@ class MessageModel extends Message {
       content: content ?? this.content,
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
+      senderName: senderName ?? this.senderName
     );
   }
 }

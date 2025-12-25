@@ -15,4 +15,10 @@ abstract class GroupRepository{
   Future<Either<Failure, Unit>> joinGroup({required String groupId, required String userId,});
 
   Future<Either<Failure, List<Group>>> searchGroup(String query);
+
+  Future<Either<Failure, Unit>> updateNameGroup(String groupId, String newGroupName);
+
+  Future<Either<Failure, Unit>> deleteGroup(String groupId);
+
+  Stream<List<Group>> listenMyGroups(String userId);
 }

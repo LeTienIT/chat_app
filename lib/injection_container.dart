@@ -3,6 +3,7 @@ import 'package:chat_app/features/chat/data/datasource/message_datasource.dart';
 import 'package:chat_app/features/chat/data/datasource/message_datasource_impl.dart';
 import 'package:chat_app/features/chat/data/repositories/message_repository_impl.dart';
 import 'package:chat_app/features/chat/domain/repositories/message_repository.dart';
+import 'package:chat_app/features/chat/domain/usecase/deleteMessage.dart';
 import 'package:chat_app/features/chat/domain/usecase/load_more_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/send_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/stream_message.dart';
@@ -11,9 +12,12 @@ import 'package:chat_app/features/groups/data/datasources/group_datasource.dart'
 import 'package:chat_app/features/groups/data/datasources/group_datasource_impl.dart';
 import 'package:chat_app/features/groups/data/repositories/group_repository_impl.dart';
 import 'package:chat_app/features/groups/domain/repositories/group_repository.dart';
+import 'package:chat_app/features/groups/domain/usecase/delete_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/join_group.dart';
+import 'package:chat_app/features/groups/domain/usecase/listen_my_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/load_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/search_group.dart';
+import 'package:chat_app/features/groups/domain/usecase/updateGroupName.dart';
 import 'package:chat_app/features/groups/presentations/bloc/discover_group_bloc/discover_group_bloc.dart';
 import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -75,8 +79,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateGroup(groupRepository: sl()));
   sl.registerLazySingleton(() => JoinGroup(repository: sl()));
   sl.registerLazySingleton(() => SearchGroup(groupRepository: sl()));
+  sl.registerLazySingleton(() => UpdateGroup(repository: sl()));
+  sl.registerLazySingleton(() => DeleteGroup( sl()));
+  sl.registerLazySingleton(() => ListenMyGroup( sl()));
 
-  sl.registerLazySingleton(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl()),);
+  sl.registerLazySingleton(() => MyGroupBloc(loadMyGroup: sl(), createGroup: sl(), updateGroup: sl(), deleteGroup: sl(), listenMyGroup: sl()),);
   sl.registerLazySingleton(() => DiscoverGroupBloc(joinGroup: sl(), searchGroup: sl()));
 
   sl.registerLazySingleton<MessageDataSource>(() => MessageDataSourceImpl(sl()));
@@ -85,6 +92,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SendMessage(sl()));
   sl.registerLazySingleton(() => LoadMoreMessages(sl()));
   sl.registerLazySingleton(() => StreamMessage(sl()));
+  sl.registerLazySingleton(() => DeleteMessage(sl()));
 
-  sl.registerFactory(() => ChatBloc(streamMessage: sl(), loadMoreMessages: sl(), sendMessage: sl()));
+  sl.registerFactory(() => ChatBloc(streamMessage: sl(), loadMoreMessages: sl(), sendMessage: sl(), getCurrentUser: sl(), deleteMessage: sl()));
 }

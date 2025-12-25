@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
 import '../../../../core/error/exceptions.dart';
 import '../models/group_model.dart';
 import 'group_datasource.dart';  // GroupModel
@@ -33,6 +35,8 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
         'members': members,
         'creatorId': creatorId,
         'createdAt': DateTime.now().toIso8601String(),
+        'updateAt' : DateTime.now().toIso8601String(),
+        'lastMessage' : '',
       };
 
       final doc = await firestore.collection('groups').add(data);
@@ -88,7 +92,8 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
       }
       throw ServerException(message: message);
     } catch (e) {
-      print("Lỗi: $e");
+      debugPrint('❌ Error: $e');
+      debugPrint('🧱 Type: ${e.runtimeType}');
       throw ServerException(message: 'Unexpected error loading groups: $e');
     }
   }
@@ -148,4 +153,56 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
       throw ServerException(message: 'Unexpected error searching groups: $e');
     }
   }
+
+  @override
+  Future<Unit> updateGroupName(String groupId, String newGroupName) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(groupId)
+          .update({
+        'name': newGroupName,
+        'updateAt': DateTime.now().toIso8601String(),
+      });
+
+      return unit;
+    } catch (e) {
+      throw ServerException(message: "Error $e");
+    }
+  }
+
+  @override
+  Future<Unit> deleteGroup(String groupId) async {
+    try{
+      final groupRef = FirebaseFirestore.instance.collection('groups').doc(groupId);
+
+      final messagesSnapshot = await groupRef.collection('messages').get();
+
+      for (final doc in messagesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      await groupRef.delete();
+      return(unit);
+    }
+    catch(e){
+      throw ServerException(message: "Error $e");
+    }
+  }
+
+  @override
+  Stream<List<GroupModel>> listenMyGroups(String userId) {
+    return firestore
+        .collection('groups')
+        .where('members', arrayContains: userId)
+        // .orderBy('updateAt', descending: true)
+        // .limit(50)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((d) => GroupModel.fromJson(d.data(), d.id))
+          .toList();
+    });
+  }
+
 }

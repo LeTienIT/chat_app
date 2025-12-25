@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:chat_app/core/usecases/usecase.dart';
+import 'package:chat_app/features/authentication/domain/usecases/get_current_user.dart';
 import 'package:chat_app/features/chat/domain/entities/message.dart';
+import 'package:chat_app/features/chat/domain/usecase/deleteMessage.dart';
 import 'package:chat_app/features/chat/domain/usecase/load_more_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/send_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/stream_message.dart';
@@ -12,6 +15,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState>{
   final StreamMessage streamMessage;
   final LoadMoreMessages loadMoreMessages;
   final SendMessage sendMessage;
+  final GetCurrentUser getCurrentUser;
+  final DeleteMessage deleteMessage;
 
   StreamSubscription<List<Message>>? _subscription;
   String? _groupId;
@@ -19,12 +24,15 @@ class ChatBloc extends Bloc<ChatEvent, ChatState>{
   ChatBloc({
       required this.streamMessage,
       required this.loadMoreMessages,
-      required this.sendMessage
+      required this.sendMessage,
+      required this.getCurrentUser,
+      required this.deleteMessage,
   }) : super(ChatState.initial()){
     on<ChatStartedEvent>(_onChatStated);
     on<ChatMessagesUpdateEvent>(_onMessagesUpdated);
     on<ChatLoadMoreEvent>(_onLoadMore);
     on<ChatSendMessageEvent>(_onSendMessage);
+    on<DeleteMessageEvent>(_onDeleteMessage);
   }
 
   @override
@@ -89,26 +97,49 @@ class ChatBloc extends Bloc<ChatEvent, ChatState>{
   }
 
   Future<void> _onSendMessage(ChatSendMessageEvent event, Emitter<ChatState> emit,) async {
-
-    final message = Message(
-      id: '',
-      groupId: event.message.groupId,
-      senderId: event.message.senderId,
-      content: event.message.content,
-      type: event.message.type,
-      createdAt: DateTime.now(),
+    final userResult = await getCurrentUser(NoParams());
+    Message message = Message(
+        id: '',
+        groupId: event.message.groupId,
+        senderId: event.message.senderId,
+        content: event.message.content,
+        type: event.message.type,
+        createdAt: DateTime.now(),
+        senderName: event.message.senderName
     );
-
+    userResult.fold(
+        (failure){
+          // print("Không lấy được user");
+        },
+        (user){
+          // print("đã lấy user ${user?.displayName}");
+          message = message.copyWith(senderName: user?.displayName);
+        }
+    );
+    // print(message);
     final result = await sendMessage(message);
 
     result.fold(
           (failure) => emit(state.copyWith(error: failure.message)),
           (newId) {
-            final updatedMessage = event.message.copyWith(id: newId);
-            emit(state.copyWith(messages: [updatedMessage, ...state.messages],));
+            // final updatedMessage = event.message.copyWith(id: newId);
+            // emit(state.copyWith(messages: [updatedMessage, ...state.messages],));
           },
     );
   }
 
+  Future<void> _onDeleteMessage(DeleteMessageEvent event, Emitter<ChatState> emit) async{
+    // final currentState = state;
+
+    final rs = await deleteMessage(DeleteMessageParams(event.groupId, event.messageId));
+
+    rs.fold(
+        (failure){
+          state.copyWith(error: failure.message);
+        },
+        (_){
+
+        });
+  }
 }
 

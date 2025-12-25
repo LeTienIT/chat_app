@@ -1,7 +1,15 @@
 import 'package:chat_app/features/groups/domain/entities/group.dart';
 
 class GroupModel extends Group{
-  const GroupModel({required super.id, required super.name, required super.members, required super.creatorId, required super.createdAt, required super.updateAt, String? description});
+  const GroupModel({
+    required super.id,
+    required super.name,
+    required super.members,
+    required super.creatorId,
+    required super.createdAt,
+    required super.updateAt,
+    super.description,
+    super.lastMessage});
 
   factory GroupModel.fromJson(Map<String, dynamic> json, String id) {
     return GroupModel(
@@ -11,7 +19,8 @@ class GroupModel extends Group{
       members: List<String>.from(json['members'] ?? []),
       creatorId: json['creatorId'] as String,
       createdAt: DateTime.parse(json['createdAt']),
-      updateAt: DateTime.parse(json['createdAt']),
+      updateAt: DateTime.parse(json['updateAt']),
+      lastMessage: json['lastMessage'] as String?,
     );
   }
 
@@ -24,6 +33,7 @@ class GroupModel extends Group{
       creatorId: creatorId,
       createdAt: createdAt,
       updateAt: updateAt,
+      lastMessage: lastMessage,
     );
   }
 
@@ -34,7 +44,8 @@ class GroupModel extends Group{
       'members': members,
       'creatorId': creatorId,
       'createdAt': createdAt.toIso8601String(),
-      'updateAt' : updateAt.toIso8601String()
+      'updateAt' : updateAt.toIso8601String(),
+      'lastMessage': lastMessage,
     };
   }
 

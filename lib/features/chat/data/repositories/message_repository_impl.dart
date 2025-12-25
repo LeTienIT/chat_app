@@ -20,7 +20,8 @@ class MessageRepositoryImpl implements MessageRepository{
           senderId: message.senderId,
           content: message.content,
           type: message.type,
-          createdAt: message.createdAt
+          createdAt: message.createdAt,
+          senderName: message.senderName
       );
 
       final newId = await messageDataSource.sendMessage(model);
@@ -54,6 +55,20 @@ class MessageRepositoryImpl implements MessageRepository{
     }
     catch (e){
       return Left(ServerFailure("Đã xảy ra lỗi"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteMessage(String groupId, String messageId) async {
+    try{
+      await messageDataSource.deleteMessage(groupId, messageId);
+      return Right(unit);
+    }
+    on ServerException catch(e){
+      return Left(ServerFailure("Lỗi"));
+    }
+    catch(e){
+      return Left(ServerFailure("Error: $e"));
     }
   }
 

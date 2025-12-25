@@ -1,5 +1,6 @@
 import 'package:chat_app/core/error/exceptions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
 
 import '../models/message_model.dart';
 import 'message_datasource.dart';
@@ -86,13 +87,30 @@ class MessageDataSourceImpl implements MessageDataSource {
       await messageRef.set(updatedModel.toJson());
 
       // Update preview group
-      // await firestore.collection('groups').doc(message.groupId).update({
-      //   'lastMessage': message.content,
-      //   'lastMessageAt': FieldValue.serverTimestamp(),
-      // });
+      await firestore.collection('groups').doc(message.groupId).update({
+        'lastMessage': message.content,
+        'updateAt': DateTime.now().toIso8601String(),
+      });
       return newId;
     }catch (e){
       throw ServerException(message: "Error: $e");
+    }
+  }
+
+  @override
+  Future<Unit> deleteMessage(String groupId, String messageId) async {
+    try{
+      final messageRef = firestore
+          .collection('groups')
+          .doc(groupId)
+          .collection('messages')
+          .doc(messageId);
+
+      await messageRef.delete();
+
+      return unit;
+    }catch(e){
+      throw ServerException(message: "Error $e");
     }
   }
 }

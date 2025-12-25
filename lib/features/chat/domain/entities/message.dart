@@ -10,11 +10,12 @@ class Message extends Equatable{
   final String id;
   final String groupId;
   final String senderId;
+  final String? senderName;
   final String content;
   final MessageType type;
   final DateTime createdAt;
 
-  const Message({required this.id, required this.groupId, required this.senderId, required this.type, required this.content, required this.createdAt});
+  const Message({required this.id, required this.groupId, required this.senderId, required this.type, required this.content, required this.createdAt, this.senderName});
 
   Message copyWith({
     String? id,
@@ -23,6 +24,7 @@ class Message extends Equatable{
     String? content,
     MessageType? type,
     DateTime? createdAt,
+    String? senderName,
   }) {
     return Message(
       id: id ?? this.id,
@@ -31,8 +33,10 @@ class Message extends Equatable{
       content: content ?? this.content,
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,
+      senderName:  senderName ?? this.senderName,
     );
   }
   @override
-  List<Object?> get props => [id, groupId, senderId, content, createdAt, type, ];
+  List<Object?> get props => [id, groupId, senderId, content, createdAt, type, senderName ];
+
 }

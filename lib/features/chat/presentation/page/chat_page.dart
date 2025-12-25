@@ -1,8 +1,11 @@
+import 'package:chat_app/core/usecases/usecase.dart';
+import 'package:chat_app/features/authentication/domain/usecases/get_current_user.dart';
 import 'package:chat_app/features/chat/presentation/bloc/chat_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../injection_container.dart';
 import '../../domain/entities/message.dart';
 import '../bloc/chat_bloc.dart';
 import '../bloc/chat_event.dart';
@@ -21,6 +24,7 @@ class ChatPage extends StatefulWidget{
 
 class _ChatPage extends State<ChatPage>{
   final userId = FirebaseAuth.instance.currentUser!.uid;
+  // final user = sl<GetCurrentUser>().call(NoParams());
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
 
@@ -54,7 +58,6 @@ class _ChatPage extends State<ChatPage>{
         groupId: widget.groupId,
         type: MessageType.text,
         createdAt: DateTime.now(),
-        // Thêm fields khác nếu cần
       );
       context.read<ChatBloc>().add(ChatSendMessageEvent(message));
       _textController.clear();
@@ -102,14 +105,14 @@ class _ChatPage extends State<ChatPage>{
                         reverse: true,
                         itemCount: state.messages.length + (state.isLoading ? 1 : 0),
                         itemBuilder: (context, index){
-                          final reversedIndex = state.messages.length - 1 - index;
-                          if (reversedIndex < 0) {
+                          // final reversedIndex = state.messages.length - 1 - index;
+                          if (index >= state.messages.length) {
                             return const Padding(
                               padding: EdgeInsets.all(16.0),
                               child: Center(child: CircularProgressIndicator()),
                             );
                           }
-                          final message = state.messages[reversedIndex];
+                          final message = state.messages[index];
                           return MessageBubble(message: message, userId: userId,);
                         },
                       ),
@@ -162,38 +165,133 @@ class _ChatPage extends State<ChatPage>{
 
 class MessageBubble extends StatelessWidget {
   final Message message;
-  final String userId;
+  final String userId;  // Để check isMe
 
   const MessageBubble({super.key, required this.message, required this.userId});
 
   @override
   Widget build(BuildContext context) {
     final isMe = message.senderId == userId;
+    final senderName = message.senderName ?? "NoName";
+
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isMe ? Colors.blue : Colors.grey[300],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message.content,
-              style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: !isMe
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CircleAvatar(
+                    radius: 16,  // Nhỏ gọn
+                    backgroundColor: _getAvatarColor(senderName),  // Màu random
+                    child: Text(
+                      _getInitials(senderName),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: _buildMessageContent(context: context),
+                    ),
+                  ),
+                ],
+              )
+            : Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: _buildMessageContent(isMe: true, context: context),
             ),
-            const SizedBox(height: 4),
-            Text(
-              _formatTime(message.createdAt), // Format thời gian
-              style: TextStyle(fontSize: 10, color: isMe ? Colors.white70 : Colors.grey),
-            ),
-          ],
-        ),
       ),
     );
+  }
+
+  Widget _buildMessageContent({
+    required BuildContext context,
+    bool isMe = false,
+  }) {
+    return GestureDetector(
+      onLongPress: isMe
+          ? () => _showDeleteMessageMenu(context)
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.content,
+            style: TextStyle(
+              color: isMe ? Colors.white : Colors.black87,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _formatTime(message.createdAt),
+            style: TextStyle(
+              fontSize: 10,
+              color: isMe ? Colors.white70 : Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteMessageMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text(
+              'Xóa tin nhắn',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+
+              // TODO: gọi Bloc xóa message
+              context.read<ChatBloc>().add(
+                DeleteMessageEvent(
+                  message.groupId,
+                  message.id,
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+  String _getInitials(String name) {
+    return name.isNotEmpty ? name[0].toUpperCase() : '?';  // Chữ cái đầu
+  }
+
+  Color _getAvatarColor(String name) {
+    final hash = name.hashCode;
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.red,
+      Colors.teal,
+    ];
+    return colors[hash.abs() % colors.length];
   }
 
   String _formatTime(DateTime time) {

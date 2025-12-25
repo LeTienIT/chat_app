@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+
 import '../../../groups/data/models/group_model.dart';
 
 abstract class GroupDatasource{
@@ -17,4 +19,10 @@ abstract class GroupDatasource{
   });
 
   Future<List<GroupModel>> searchGroups(String query);
+
+  Future<Unit> updateGroupName(String groupId, String newGroupName);
+
+  Future<Unit> deleteGroup(String groupId);
+
+  Stream<List<GroupModel>> listenMyGroups(String userId);
 }

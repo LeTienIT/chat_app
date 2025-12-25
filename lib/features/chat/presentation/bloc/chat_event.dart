@@ -21,3 +21,10 @@ class ChatSendMessageEvent extends ChatEvent{
 
   ChatSendMessageEvent(this.message);
 }
+
+class DeleteMessageEvent extends ChatEvent{
+  String groupId;
+  String messageId;
+
+  DeleteMessageEvent(this.groupId, this.messageId);
+}

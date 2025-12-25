@@ -35,6 +35,9 @@ final router = GoRouter(
               create: (_) => MyGroupBloc(
                 loadMyGroup: sl(),
                 createGroup: sl(),
+                updateGroup: sl(),
+                deleteGroup: sl(),
+                listenMyGroup: sl(),
               )..add(LoadMyGroupEvent(userId)),
             ),
             BlocProvider(

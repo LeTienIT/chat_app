@@ -1,4 +1,5 @@
 import 'package:chat_app/features/groups/domain/entities/group.dart';
+import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +26,52 @@ class _MyGroupPage extends State<MyGroupPage>{
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<(String, String)?> showEditGroupDialog(BuildContext context, String currentName, String? currentDescription,) async {
+    final nameController = TextEditingController(text: currentName);
+    final descriptionController = TextEditingController(text: currentDescription ?? '');
+
+    return await showDialog<(String, String)>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Chỉnh sửa nhóm'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Tên nhóm',
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Mô tả',
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, (nameController.text.trim(), descriptionController.text.trim(), ),);
+              },
+              child: const Text('Lưu'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -98,33 +145,57 @@ class _MyGroupPage extends State<MyGroupPage>{
                         itemCount: displayGroups.length,
                         itemBuilder: (context, idx){
                           final group = displayGroups[idx];
-                          final memberCount = group.members.length;
+                          // print((group));
                           final isCreator = group.creatorId == userId;
 
                           return Card(
                             margin: EdgeInsets.symmetric(vertical: 4),
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                child: Text(group.name.substring(0,1).toUpperCase(),style: TextStyle(color: Colors.white),),
-                              ),
-                              title: Text(group.name,style: TextStyle(fontWeight: FontWeight.bold),),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if(group.description != null )...[
-                                    Text(group.description!),
-                                    SizedBox(height: 16,),
+                            child: GestureDetector(
+                              onLongPress: isCreator ? (){
+                                _showDeleteMessageMenu(context, group.id);
+                              } : null,
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.blue,
+                                  child: Text(group.name.substring(0,1).toUpperCase(),style: TextStyle(color: Colors.white),),
+                                ),
+                                title: Text(group.name,style: TextStyle(fontWeight: FontWeight.bold),),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if(group.description != null )...[
+                                      Text(group.description!),
+                                      SizedBox(height: 16,),
+                                    ],
+                                    Text(
+                                      group.lastMessage ?? "",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.black),
+                                    )
                                   ],
-                                  Text("$memberCount members")
-                                ],
-                              ),
-                              trailing: isCreator ? Icon(Icons.star, color: Colors.amber,) : null,
+                                ),
+                                trailing: isCreator ? IconButton(
+                                  onPressed: () async {
+                                    final result = await showEditGroupDialog(
+                                      context,
+                                      group.name,
+                                      group.description,
+                                    );
 
-                              onTap: (){
-                                context.push('/chat/${group.id}/${group.name}');
-                              },
-                            ),
+                                    if (result != null) {
+                                      final newName = result.$1;
+                                      final newDescription = result.$2;
+
+                                      context.read<MyGroupBloc>().add(UpdateGroupEvent(groupId: group.id, newName: newName));
+                                    }
+                                  },
+                                  icon: Icon(Icons.edit, color: Colors.amber,),
+                                ) : null,
+                                onTap: (){
+                                  context.push('/chat/${group.id}/${group.name}');
+                                },
+                              ),
+                            )
                           );
                         }
                     );
@@ -134,6 +205,29 @@ class _MyGroupPage extends State<MyGroupPage>{
             ),
           )
         ],
+    );
+  }
+  void _showDeleteMessageMenu(BuildContext context, String groupId) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text(
+              'Xóa nhóm này?',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              context.read<MyGroupBloc>().add(DeleteGroupEvent(groupId));
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -67,4 +67,43 @@ class GroupRepositoryImpl implements GroupRepository{
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> updateNameGroup(String groupId, String newGroupName) async {
+    try{
+      await groupDatasource.updateGroupName(groupId, newGroupName);
+      return Right(unit);
+    }
+    on ServerException catch(_){
+      return Left(ServerFailure("Cập nhât thất bại"));
+    }
+    catch(e){
+      return Left(ServerFailure("Error $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deleteGroup(String groupId) async {
+    try{
+      await groupDatasource.deleteGroup(groupId);
+      return Right(unit);
+    }
+    on ServerException catch(_){
+      return Left(ServerFailure("Xóa thất bại"));
+    }
+    catch(e){
+      return Left(ServerFailure("Error $e"));
+    }
+  }
+
+  @override
+  Stream<List<Group>> listenMyGroups(String userId) {
+    return groupDatasource
+        .listenMyGroups(userId)
+        .map(
+          (models) => models
+          .map((model) => model.toEntity())
+          .toList(),
+    );
+  }
+
 }

@@ -8,4 +8,6 @@ abstract class MessageRepository{
   Future<Either<Failure, String>> sendMessage(Message message);
 
   Future<Either<Failure, List<Message>>> loadMoreMessages({ required String groupId, required Message lastMessage});
+
+  Future<Either<Failure, Unit>> deleteMessage(String groupId, String messageId);
 }

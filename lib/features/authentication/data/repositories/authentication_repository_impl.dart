@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import '../../../../services/fcm_token_service.dart';
 import '../../domain/repositories/authentication_repository.dart';
 import '../../domain/entities/user.dart';
 import '../../../../core/error/failures.dart';
@@ -9,10 +10,12 @@ import '../datasources/remote/authentication_remote_datasource.dart';
 class AuthenticationRepositoryImpl implements AuthenticationRepository {
   final AuthenticationRemoteDataSource remoteDataSource;
   final AuthenticationLocalDataSource localDataSource;
+  final FcmTokenService fcmTokenDataSource;
 
   AuthenticationRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
+    required this.fcmTokenDataSource,
   });
 
   @override
@@ -20,6 +23,10 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
     try {
       final remoteUser = await remoteDataSource.login(email, password);
       await localDataSource.cacheUser(remoteUser);
+
+      await fcmTokenDataSource.saveToken(remoteUser.id);
+      fcmTokenDataSource.listenTokenRefresh(remoteUser.id);
+
       return Right(remoteUser);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message ?? 'Server error'));
@@ -54,6 +61,8 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
       // Thử remote trước
       final remoteUser = await remoteDataSource.getCurrentUser();
       if (remoteUser != null) {
+        await fcmTokenDataSource.saveToken(remoteUser!.id);
+        fcmTokenDataSource.listenTokenRefresh(remoteUser!.id);
         await localDataSource.cacheUser(remoteUser);
         return Right(remoteUser);
       }
@@ -66,7 +75,14 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
     try {
       final localUser = await localDataSource.getCachedUser();
-      return Right(localUser);
+      if(localUser != null){
+        await fcmTokenDataSource.saveToken(localUser!.id);
+        fcmTokenDataSource.listenTokenRefresh(localUser!.id);
+        return Right(localUser);
+      }
+      else{
+        return Left(ServerFailure(''));
+      }
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message ?? 'Cache error'));
     }

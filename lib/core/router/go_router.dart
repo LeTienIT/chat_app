@@ -53,14 +53,15 @@ final router = GoRouter(
     ),
 
     GoRoute(
-      path: '/chat/:groupId/:groupName',
+      path: '/chat/:userId/:groupId/:groupName',
       builder: (context, state) {
+        final userId = state.pathParameters['userId']!;
         final groupId = state.pathParameters['groupId']!;
         final groupName = state.pathParameters['groupName']!;
         return MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => sl<ChatBloc>()..add(ChatStartedEvent(groupId))
+              create: (_) => sl<ChatBloc>()..add(ChatStartedEvent(userId, groupId))
             ),
           ],
           child: ChatPage(groupId: groupId, groupName: groupName),

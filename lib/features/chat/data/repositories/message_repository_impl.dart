@@ -72,6 +72,34 @@ class MessageRepositoryImpl implements MessageRepository{
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> cleanActionGroup(String userId) async {
+    try{
+      await messageDataSource.cleanActionGroup(userId);
+      return Right(unit);
+    }
+    on ServerException catch(e){
+      return Left(ServerFailure("Server lỗi"));
+    }
+    catch(e){
+      return Left(ServerFailure("Error: $e"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> setActionGroup(String groupId, String userId) async {
+    try{
+      await messageDataSource.setActionGroup(groupId, userId);
+      return Right(unit);
+    }
+    on ServerException catch(e){
+      return Left(ServerFailure("Server lỗi"));
+    }
+    catch(e){
+      return Left(ServerFailure("Error: $e"));
+    }
+  }
+
 
 
 }

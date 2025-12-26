@@ -13,4 +13,7 @@ abstract class MessageDataSource {
   Future<DocumentSnapshot> getMessageSnapshot({required String groupId, required String messageId,});
 
   Future<Unit> deleteMessage(String groupId, String messageId);
+
+  Future<Unit> setActionGroup(String groupId, String userId);
+  Future<Unit> cleanActionGroup(String userId);
 }

@@ -31,7 +31,7 @@ class _ChatPage extends State<ChatPage>{
   @override
   void initState() {
     super.initState();
-    context.read<ChatBloc>().add(ChatStartedEvent(widget.groupId));
+    context.read<ChatBloc>().add(ChatStartedEvent(userId, widget.groupId));
     _scrollController.addListener(_onScroll);
   }
 
@@ -91,7 +91,7 @@ class _ChatPage extends State<ChatPage>{
                         children: [
                           Text('Lỗi: ${state.error}'),
                           ElevatedButton(
-                            onPressed: () => context.read<ChatBloc>().add(ChatStartedEvent(widget.groupId)),
+                            onPressed: () => context.read<ChatBloc>().add(ChatStartedEvent(userId, widget.groupId)),
                             child: const Text('Thử lại'),
                           ),
                         ],

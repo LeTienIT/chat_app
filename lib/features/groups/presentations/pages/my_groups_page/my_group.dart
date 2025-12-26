@@ -192,7 +192,7 @@ class _MyGroupPage extends State<MyGroupPage>{
                                   icon: Icon(Icons.edit, color: Colors.amber,),
                                 ) : null,
                                 onTap: (){
-                                  context.push('/chat/${group.id}/${group.name}');
+                                  context.push('/chat/$userId/${group.id}/${group.name}');
                                 },
                               ),
                             )

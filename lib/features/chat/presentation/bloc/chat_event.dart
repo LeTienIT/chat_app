@@ -3,9 +3,10 @@ import 'package:chat_app/features/chat/domain/entities/message.dart';
 abstract class ChatEvent{}
 
 class ChatStartedEvent extends ChatEvent{
+  final String userId;
   final String groupId;
 
-  ChatStartedEvent(this.groupId);
+  ChatStartedEvent(this.userId, this.groupId);
 }
 
 class ChatMessagesUpdateEvent extends ChatEvent{

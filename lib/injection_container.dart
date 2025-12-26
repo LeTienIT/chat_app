@@ -3,9 +3,11 @@ import 'package:chat_app/features/chat/data/datasource/message_datasource.dart';
 import 'package:chat_app/features/chat/data/datasource/message_datasource_impl.dart';
 import 'package:chat_app/features/chat/data/repositories/message_repository_impl.dart';
 import 'package:chat_app/features/chat/domain/repositories/message_repository.dart';
+import 'package:chat_app/features/chat/domain/usecase/cleanActionGroup.dart';
 import 'package:chat_app/features/chat/domain/usecase/deleteMessage.dart';
 import 'package:chat_app/features/chat/domain/usecase/load_more_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/send_message.dart';
+import 'package:chat_app/features/chat/domain/usecase/setActionGroup.dart';
 import 'package:chat_app/features/chat/domain/usecase/stream_message.dart';
 import 'package:chat_app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:chat_app/features/groups/data/datasources/group_datasource.dart';
@@ -20,8 +22,10 @@ import 'package:chat_app/features/groups/domain/usecase/search_group.dart';
 import 'package:chat_app/features/groups/domain/usecase/updateGroupName.dart';
 import 'package:chat_app/features/groups/presentations/bloc/discover_group_bloc/discover_group_bloc.dart';
 import 'package:chat_app/features/groups/presentations/bloc/my_group_bloc/my_group_bloc.dart';
+import 'package:chat_app/services/fcm_token_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/authentication/data/datasources/local/authentication_local_datasource.dart';
@@ -42,6 +46,7 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
+  sl.registerLazySingleton(() => FirebaseMessaging.instance);
 
   // Datasources
   sl.registerLazySingleton<AuthenticationRemoteDataSource>(
@@ -54,12 +59,17 @@ Future<void> init() async {
         () => AuthenticationLocalDataSource(),
   );
 
+  sl.registerLazySingleton<FcmTokenService>(
+        () => FcmTokenService(sl(), sl()),
+  );
+
   // Repository
   sl.registerLazySingleton<AuthenticationRepository>(
         () => AuthenticationRepositoryImpl(
-      remoteDataSource: sl<AuthenticationRemoteDataSource>(),
-      localDataSource: sl<AuthenticationLocalDataSource>(),
-    ),
+          fcmTokenDataSource: sl(),
+          remoteDataSource: sl<AuthenticationRemoteDataSource>(),
+          localDataSource: sl<AuthenticationLocalDataSource>(),
+        ),
   );
 
   // UseCases
@@ -93,6 +103,15 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LoadMoreMessages(sl()));
   sl.registerLazySingleton(() => StreamMessage(sl()));
   sl.registerLazySingleton(() => DeleteMessage(sl()));
-
-  sl.registerFactory(() => ChatBloc(streamMessage: sl(), loadMoreMessages: sl(), sendMessage: sl(), getCurrentUser: sl(), deleteMessage: sl()));
+  sl.registerLazySingleton(() => CleanActionGroup(sl()));
+  sl.registerLazySingleton(() => SetActionGroup(sl()));
+  sl.registerFactory(() => ChatBloc(
+      cleanActionGroup: sl(),
+      setActionGroup: sl(),
+      streamMessage: sl(),
+      loadMoreMessages: sl(),
+      sendMessage: sl(),
+      getCurrentUser: sl(),
+      deleteMessage: sl())
+  );
 }

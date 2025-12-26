@@ -113,4 +113,32 @@ class MessageDataSourceImpl implements MessageDataSource {
       throw ServerException(message: "Error $e");
     }
   }
+
+  @override
+  Future<Unit> cleanActionGroup(String userId) async {
+    try{
+      await firestore
+          .collection('users')
+          .doc(userId)
+          .update({'activeGroupId': null});
+
+      return unit;
+    }catch(e){
+      throw ServerException(message: "Error: $e");
+    }
+  }
+
+  @override
+  Future<Unit> setActionGroup(String groupId, String userId) async {
+    try{
+      await firestore
+          .collection('users')
+          .doc(userId)
+          .update({'activeGroupId': groupId});
+
+      return unit;
+    }catch(e){
+      throw ServerException(message: "Error: $e");
+    }
+  }
 }

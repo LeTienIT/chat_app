@@ -3,15 +3,19 @@ import 'dart:async';
 import 'package:chat_app/core/usecases/usecase.dart';
 import 'package:chat_app/features/authentication/domain/usecases/get_current_user.dart';
 import 'package:chat_app/features/chat/domain/entities/message.dart';
+import 'package:chat_app/features/chat/domain/usecase/cleanActionGroup.dart';
 import 'package:chat_app/features/chat/domain/usecase/deleteMessage.dart';
 import 'package:chat_app/features/chat/domain/usecase/load_more_message.dart';
 import 'package:chat_app/features/chat/domain/usecase/send_message.dart';
+import 'package:chat_app/features/chat/domain/usecase/setActionGroup.dart';
 import 'package:chat_app/features/chat/domain/usecase/stream_message.dart';
 import 'package:chat_app/features/chat/presentation/bloc/chat_event.dart';
 import 'package:chat_app/features/chat/presentation/bloc/chat_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState>{
+  final SetActionGroup setActionGroup;
+  final CleanActionGroup cleanActionGroup;
   final StreamMessage streamMessage;
   final LoadMoreMessages loadMoreMessages;
   final SendMessage sendMessage;
@@ -20,8 +24,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState>{
 
   StreamSubscription<List<Message>>? _subscription;
   String? _groupId;
+  String? _userId;
 
   ChatBloc({
+      required this.setActionGroup,
+      required this.cleanActionGroup,
       required this.streamMessage,
       required this.loadMoreMessages,
       required this.sendMessage,
@@ -37,15 +44,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState>{
 
   @override
   Future<void> close() async {
+    await cleanActionGroup(_userId!);
     await _subscription?.cancel();
     return super.close();
   }
 
   Future<void> _onChatStated(ChatStartedEvent event, Emitter<ChatState> emit) async {
     _groupId = event.groupId;
+    _userId = event.userId;
 
     emit(state.copyWith(isLoading: true));
 
+    await setActionGroup(SetActionGroupParams(_groupId!, _userId!));
     await _subscription?.cancel();
 
     _subscription = streamMessage(event.groupId).listen(

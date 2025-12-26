@@ -73,6 +73,7 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
       final snap = await firestore
           .collection('groups')
           .where('members', arrayContains: userId)
+          .orderBy('updateAt', descending: true)
           .get();
 
       return snap.docs
@@ -195,8 +196,8 @@ class GroupRemoteDataSourceImpl implements GroupDatasource {
     return firestore
         .collection('groups')
         .where('members', arrayContains: userId)
-        // .orderBy('updateAt', descending: true)
-        // .limit(50)
+        .orderBy('updateAt', descending: true)
+        .limit(50)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

@@ -9,13 +9,13 @@ class FcmTokenService {
 
   FcmTokenService(this.messaging, this.firestore);
 
-  /*Future<void> requestNotificationPermission() async {
+  Future<void> requestNotificationPermission() async {
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-  }*/
+  }
 
   Future<void> saveToken(String userId) async {
     if(Platform.isIOS){

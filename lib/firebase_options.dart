@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAyAd4zFKsx2UkzNK4qZLOMQUGN8UJZvgk',
-    appId: '1:509033048334:android:255d46d927079dcc050f5f',
-    messagingSenderId: '509033048334',
-    projectId: 'chat-voice-app-55d8a',
-    storageBucket: 'chat-voice-app-55d8a.firebasestorage.app',
+    apiKey: 'AIzaSyA0gzbrMRsSmtwRYC7Wc9KAqfjJok89GnU',
+    appId: '1:540158763630:android:211057fe494d8d01da3c7f',
+    messagingSenderId: '540158763630',
+    projectId: 'chat-app-ebef3',
+    storageBucket: 'chat-app-ebef3.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCUvmRqtxf1CFwmP3SL1KMuADt00jcf3g4',
-    appId: '1:509033048334:ios:da3db0b75de514e7050f5f',
-    messagingSenderId: '509033048334',
-    projectId: 'chat-voice-app-55d8a',
-    storageBucket: 'chat-voice-app-55d8a.firebasestorage.app',
+    apiKey: 'AIzaSyCa92dcOAeHKTUcgMepkRnJRXwmiZNbb-Q',
+    appId: '1:540158763630:ios:f0b3925119313d47da3c7f',
+    messagingSenderId: '540158763630',
+    projectId: 'chat-app-ebef3',
+    storageBucket: 'chat-app-ebef3.firebasestorage.app',
     iosBundleId: 'letienit.chatapp.chatApp',
   );
+
 }
